@@ -74,7 +74,7 @@ def init_folder(x,y,source_folder):
 def parallel_init_workspace(dir,source_folder):
     Parallel(n_jobs=multiprocessing.cpu_count())(delayed(init_folder)(x,y,source_folder) for x,y in dir.items())
 
-def manipulatefiles(dir, source_folder):
+def manipulate_files(dir, source_folder):
         for x,y in dir.items():
             dest_folder = source_folder + '/' + x
             if(isinstance(y,dict)):
@@ -91,6 +91,27 @@ def manipulatefiles(dir, source_folder):
                         rmtree(dest_file)
                     os.rename(src_file,dest_file)
 
+
+def manipulate_file(x,y,source_folder):
+    dest_folder = source_folder + '/' + x
+    if(isinstance(y,dict)):
+        for xx, xy in y.items():
+            for yy in xy:
+                dest_file = dest_folder + '/' + xx + '/' + yy
+                src_file = source_folder + '/' + yy
+                os.rename(src_file,dest_file)
+    else:
+        for yy in y:
+            dest_file = dest_folder + '/' + yy
+            src_file = source_folder + '/' + yy
+            if(os.path.exists(dest_file)):
+                rmtree(dest_file)
+            os.rename(src_file,dest_file)
+
+def parallel_manipulate_files(dir, source_folder):
+    Parallel(n_jobs=multiprocessing.cpu_count())(delayed(manipulate_file)(x,y,source_folder) for x,y in dir.items())
+
+
 if __name__ == '__main__':
     
     mime = magic.Magic(mime=True)
@@ -99,5 +120,5 @@ if __name__ == '__main__':
     folder_tree = folder_json(options.directory, options.output)
     parallel_init_workspace(folder_tree,options.directory)
 
-    manipulatefiles(folder_tree,options.directory)
+    parallel_manipulate_files(folder_tree,options.directory)
 
