@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
 import os
+from shutil import rmtree
 import sys
 import argparse
 import magic
 import codecs
 import json
+
+from joblib import Parallel, delayed
+import multiprocessing
 
 def get_download_path():
     home_path = os.path.expanduser('~')
@@ -57,6 +61,19 @@ def init_workspace(dir, source_folder):
                 if(not os.path.exists(new_sub_dir)):
                     os.mkdir(new_sub_dir)
 
+def init_folder(x,y,source_folder):
+    new_dir = source_folder + '/' + x
+    if(not os.path.exists(new_dir)):
+        os.mkdir(new_dir)
+    if(isinstance(y,dict)):
+        for xx in y.keys():
+            new_sub_dir = new_dir + '/' + xx
+            if(not os.path.exists(new_sub_dir)):
+                os.mkdir(new_sub_dir)
+
+def parallel_init_workspace(dir,source_folder):
+    Parallel(n_jobs=multiprocessing.cpu_count())(delayed(init_folder)(x,y,source_folder) for x,y in dir.items())
+
 def manipulatefiles(dir, source_folder):
         for x,y in dir.items():
             dest_folder = source_folder + '/' + x
@@ -65,15 +82,14 @@ def manipulatefiles(dir, source_folder):
                     for yy in xy:
                         dest_file = dest_folder + '/' + xx + '/' + yy
                         src_file = source_folder + '/' + yy
-                        os.replace(src_file,dest_file)
+                        os.rename(src_file,dest_file)
             else:
                 for yy in y:
                     dest_file = dest_folder + '/' + yy
                     src_file = source_folder + '/' + yy
-                    print(source_folder)
-                    print(dest_folder)
-                    print(yy)
-                    os.replace(src_file,dest_file)
+                    if(os.path.exists(dest_file)):
+                        rmtree(dest_file)
+                    os.rename(src_file,dest_file)
 
 if __name__ == '__main__':
     
@@ -81,7 +97,7 @@ if __name__ == '__main__':
     options = get_options()
 
     folder_tree = folder_json(options.directory, options.output)
-    init_workspace(folder_tree,options.directory)
+    parallel_init_workspace(folder_tree,options.directory)
 
     manipulatefiles(folder_tree,options.directory)
 
