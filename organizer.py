@@ -50,6 +50,7 @@ def folder_json(directory,output):
     
     return dir
 
+'''
 def init_workspace(dir, source_folder):
     for x,y in dir.items():
         new_dir = source_folder + '/' + x
@@ -60,6 +61,7 @@ def init_workspace(dir, source_folder):
                 new_sub_dir = new_dir + '/' + xx
                 if(not os.path.exists(new_sub_dir)):
                     os.mkdir(new_sub_dir)
+'''
 
 def init_folder(x,y,source_folder):
     new_dir = source_folder + '/' + x
@@ -74,6 +76,7 @@ def init_folder(x,y,source_folder):
 def parallel_init_workspace(dir,source_folder):
     Parallel(n_jobs=multiprocessing.cpu_count())(delayed(init_folder)(x,y,source_folder) for x,y in dir.items())
 
+'''
 def manipulate_files(dir, source_folder):
         for x,y in dir.items():
             dest_folder = source_folder + '/' + x
@@ -90,7 +93,7 @@ def manipulate_files(dir, source_folder):
                     if(os.path.exists(dest_file)):
                         rmtree(dest_file)
                     os.rename(src_file,dest_file)
-
+'''
 
 def manipulate_file(x,y,source_folder):
     dest_folder = source_folder + '/' + x
